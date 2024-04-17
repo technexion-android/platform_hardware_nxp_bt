@@ -66,7 +66,7 @@ LOCAL_SHARED_LIBRARIES := \
     libprotobuf-cpp-lite \
     libbase \
     libchrome
-LOCAL_MODULE := libbt-vendor
+LOCAL_MODULE := libbt-vendor-nxp
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_OWNER := nxp
 LOCAL_MULTILIB := both
