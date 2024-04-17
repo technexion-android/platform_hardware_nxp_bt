@@ -72,6 +72,9 @@ LOCAL_MULTILIB := both
 LOCAL_PROPRIETARY_MODULE := true
 
 include $(BUILD_SHARED_LIBRARY)
+ifeq ($(TARGET_PRODUCT), edm_g_imx8mp)
+    include $(LOCAL_PATH)/conf/nxp/edm_g_imx8mp/Android.mk
+endif
 ifeq ($(TARGET_PRODUCT), evk_8mp)
     include $(LOCAL_PATH)/conf/nxp/evk_8mp/Android.mk
 endif
