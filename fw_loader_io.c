@@ -363,3 +363,39 @@ uint64 fw_upload_GetTime(void) {
   }
   return millisectime;
 }
+
+/******************************************************************************
+ *
+ * Name: fw_upload_ComGetCTS_after_fw_dwnl
+ *
+ * Description:
+ *   Polls for cts_timeout duration to check the cts status after FW download
+ *
+ * Conditions For Use:
+ *   None.
+ *
+ * Arguments:
+ *
+ * Return Value:
+ *   return true, if cts is low
+ *
+ * Notes:
+ *   None.
+ *
+ *****************************************************************************/
+
+bool fw_upload_ComGetCTS_after_fw_dwnl(int32 fd, int32 cts_timeout) {
+  bool cts_high_after_fw_dnl = false;
+  int32 cts_status = 0;
+  uint64 endTime = fw_upload_GetTime() + cts_timeout;
+  do {
+    cts_status = fw_upload_ComGetCTS(fd);
+    if (!cts_high_after_fw_dnl) {
+      cts_high_after_fw_dnl = (cts_status == 1) ? true : false;
+    }
+    if (!cts_status && cts_high_after_fw_dnl) {
+      return true;
+    }
+  } while (endTime > fw_upload_GetTime());
+  return false;
+}

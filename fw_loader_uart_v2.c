@@ -969,24 +969,19 @@ uint32 bt_vnd_mrvl_download_fw_v2(int8* pPortName, uint32 iBaudrate,
         } while (endTime > fw_upload_GetTime());
       }
       if (uiReDownload == false) {
-        endTime = fw_upload_GetTime() + MAX_CTS_TIMEOUT;
-        do {
-          if (!fw_upload_ComGetCTS(mchar_fd)) {
-            VND_LOGV("CTS is low");
-            if (pFile) {
-              fclose(pFile);
-              pFile = NULL;
-            }
-            goto done;
-          }
-        } while (endTime > fw_upload_GetTime());
-        VND_LOGV("wait CTS low timeout");
-        VND_LOGV("Error code is %d", ulResult);
+        if (fw_upload_ComGetCTS_after_fw_dwnl(mchar_fd, MAX_CTS_TIMEOUT) ==
+            true) {
+          VND_LOGD("CTS is low");
+        } else {
+          VND_LOGE("wait CTS low timeout. Total_duration = %d",
+                   MAX_CTS_TIMEOUT);
+          VND_LOGV("Error code is %d", ulResult);
+        }
         if (pFile) {
           fclose(pFile);
           pFile = NULL;
         }
-        goto done;
+        break;
       }
     } else {
       VND_LOGE("Download Error");
@@ -994,6 +989,5 @@ uint32 bt_vnd_mrvl_download_fw_v2(int8* pPortName, uint32 iBaudrate,
     }
   } while (uiReDownload);
 
-done:
   return 0;
 }

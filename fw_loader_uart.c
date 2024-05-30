@@ -49,7 +49,7 @@
 #define VERSION "M322"
 #define MAX_LENGTH 0xFFFF  // Maximum 2 byte value
 #define END_SIG_TIMEOUT 2500
-#define MAX_CTS_TIMEOUT 100  // 100ms
+#define MAX_CTS_TIMEOUT 500  // 500ms
 #define STRING_SIZE 6U
 #define HDR_LEN 16U
 #define CMD4 0x4U
@@ -2306,7 +2306,6 @@ bool bt_vnd_mrvl_check_fw_status(void) {
  *****************************************************************************/
 uint32 bt_vnd_mrvl_download_fw(int8* pPortName, uint32 iBaudrate,
                                int8* pFileName, uint32 iSecondBaudrate) {
-  uint64 endTime;
   uint64 start;
   uint64 cost;
   uint32 ulResult;
@@ -2325,33 +2324,16 @@ uint32 bt_vnd_mrvl_download_fw(int8* pPortName, uint32 iBaudrate,
     VND_LOGI("Download Complete");
     cost = fw_upload_GetTime() - start;
     VND_LOGD("time:%llu", cost);
-    if (uiProVer == Ver1) {
-      fw_upload_DelayInMs(MAX_CTS_TIMEOUT);
-      endTime = fw_upload_GetTime() + MAX_CTS_TIMEOUT;
-      do {
-        if (!fw_upload_ComGetCTS(mchar_fd)) {
-          VND_LOGD("CTS is low");
-          goto done;
-        }
-      } while (endTime > fw_upload_GetTime());
-      VND_LOGE("wait CTS low timeout ");
-      goto done;
-    } else if (uiProVer == Ver3) {
-      endTime = fw_upload_GetTime() + END_SIG_TIMEOUT;
-      do {
-        if (!fw_upload_ComGetCTS(mchar_fd)) {
-          VND_LOGD("CTS is low");
-          goto done;
-        }
-      } while (endTime > fw_upload_GetTime());
-      goto done;
+    if (fw_upload_ComGetCTS_after_fw_dwnl(mchar_fd, MAX_CTS_TIMEOUT) == true) {
+      VND_LOGD("CTS is low");
+    } else {
+      VND_LOGE("wait CTS low timeout. Timeout_duration = %d", MAX_CTS_TIMEOUT);
     }
   } else {
     VND_LOGV("Download Error, Error code = %d", ulResult);
     return ulResult;
   }
 
-done:
   bVerChecked = false;
   return 0;
 }

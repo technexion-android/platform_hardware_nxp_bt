@@ -146,7 +146,7 @@ bool lpm_configured = false;
 static uint32_t lpm_timeout_ms = 1000;
 #ifdef UART_DOWNLOAD_FW
 static bool enable_download_fw = false;
-static uint32_t uart_sleep_after_dl = 100;
+static uint32_t uart_sleep_after_dl = 0;
 static int download_helper = 0;
 static bool auto_select_fw_name = true;
 static uint32_t baudrate_dl_helper = 115200;
